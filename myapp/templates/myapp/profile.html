@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 700px;">
+    <h2 class="mb-4">Профиль пользователя {{ user.username }}</h2>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body d-flex align-items-center gap-4">
+            {% if profile and profile.avatar %}
+                <a href="{{ profile.avatar.url }}" target="_blank" rel="noopener noreferrer" class="d-block">
+                    <img src="{{ profile.avatar.url }}" alt="Аватар {{ user.username }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #0d6efd;">
+                </a>
+            {% else %}
+                <a href="{% static 'images/default_avatar.png' %}" target="_blank" rel="noopener noreferrer" class="d-block">
+                    <img src="{% static 'images/default_avatar.png' %}" alt="Аватар по умолчанию" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #6c757d;">
+                </a>
+            {% endif %}
+            <div>
+                <h4 class="mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                <p class="mb-1"><strong>Email:</strong> <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+
+                {% if profile and profile.location %}
+                    <p class="mb-1"><strong>Местоположение:</strong> {{ profile.location }}</p>
+                {% endif %}
+
+                {% if profile and profile.phone %}
+                    <p class="mb-1"><strong>Телефон:</strong> <a href="tel:{{ profile.phone }}">{{ profile.phone }}</a></p>
+                {% endif %}
+
+                {% if profile and profile.social_link %}
+                    <p class="mb-0">
+                        <strong>Соцсети:</strong> 
+                        <a href="{{ profile.social_link }}" target="_blank" rel="noopener noreferrer" class="link-primary">
+                            {{ profile.social_link|urlize }}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if profile and profile.bio %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">О себе</h5>
+                <p class="card-text">{{ profile.bio|linebreaks }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <a href="{% url 'myapp:edit_profile' %}" class="btn btn-primary">Редактировать профиль</a>
+</div>
+{% endblock %}
+
+
+
+

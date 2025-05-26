@@ -1,30 +1,78 @@
 {% extends "base.html" %}
 
-{% block title %}Task Details{% endblock %}
+{% block title %}Детали задачи{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1>{{ task.title }}</h1>
-        <p><strong>Description:</strong> {{ task.description }}</p>
-        <p><strong>Status:</strong> {{ task.status }}</p>
-        <p><strong>Priority:</strong> {{ task.priority }}</p>
-        <p><strong>Deadline:</strong> {{ task.deadline }}</p>
+<div class="container mt-5" style="max-width: 800px;">
+    <h1 class="mb-3">{{ task.title }}</h1>
 
-        <h3>Comments</h3>
-        <ul>
+    <dl class="row">
+        <dt class="col-sm-3">Описание:</dt>
+        <dd class="col-sm-9">{{ task.description }}</dd>
+
+        <dt class="col-sm-3">Статус:</dt>
+        <dd class="col-sm-9">{{ task.status }}</dd>
+
+        <dt class="col-sm-3">Приоритет:</dt>
+        <dd class="col-sm-9">{{ task.priority }}</dd>
+
+        <dt class="col-sm-3">Срок выполнения:</dt>
+        <dd class="col-sm-9">
+            {% if task.deadline %}
+                {{ task.deadline|date:"d.m.Y H:i" }}
+            {% else %}
+                Не установлен
+            {% endif %}
+        </dd>
+    </dl>
+
+    <hr>
+
+    <h3>Комментарии</h3>
+    {% if comments %}
+        <ul class="list-group mb-4">
             {% for comment in comments %}
-                <li>{{ comment.user }}: {{ comment.comment }} ({{ comment.created_at }})</li>
+                <li class="list-group-item">
+                    <strong>{{ comment.user.username if comment.user else "Аноним" }}</strong>
+                    <small class="text-muted">— {{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                    <p class="mb-0 mt-1">{{ comment.comment }}</p>
+                </li>
             {% endfor %}
         </ul>
+    {% else %}
+        <p>Комментариев пока нет.</p>
+    {% endif %}
 
-        <h3>Add a Comment</h3>
-        <form method="post">
-            {% csrf_token %}
-            {{ comment_form.as_p }}
-            <button type="submit" class="btn btn-primary">Add Comment</button>
-        </form>
+    <h4>Добавить комментарий</h4>
+    <form method="post" novalidate>
+        {% csrf_token %}
 
-        <a href="{% url 'myapp:task_list' %}" class="btn btn-secondary mt-3">Back to Task List</a>
-    </div>
+        {% if comment_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in comment_form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for field in comment_form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in field.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+    </form>
+
+    <a href="{% url 'myapp:task_list' %}" class="btn btn-secondary mt-4 d-inline-block">Назад к списку задач</a>
+</div>
 {% endblock %}
 
